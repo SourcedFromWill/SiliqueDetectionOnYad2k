@@ -1,4 +1,5 @@
 """
+From https://github.com/shadySource
 This is a script that can be used to retrain the YOLOv2 model for your own dataset.
 """
 import argparse
@@ -26,7 +27,7 @@ argparser.add_argument(
     '-d',
     '--data_path',
     help="path to numpy data file (.npz) containing np.object array 'boxes' and np.uint8 array 'images'",
-    default=os.path.join('..', 'DATA', 'underwater_data.npz'))
+    default=os.path.join('71_my_dataset.npz'))
 
 argparser.add_argument(
     '-a',
@@ -38,7 +39,7 @@ argparser.add_argument(
     '-c',
     '--classes_path',
     help='path to classes file, defaults to pascal_classes.txt',
-    default=os.path.join('..', 'DATA', 'underwater_classes.txt'))
+    default=os.path.join( 'model_data', 'thale_classes.txt'))
 
 # Default anchor boxes
 YOLO_ANCHORS = np.array(
@@ -129,7 +130,7 @@ def process_data(images, boxes=None):
         boxes = [np.concatenate((boxes_xy[i], boxes_wh[i], box[:, 0:1]), axis=1) for i, box in enumerate(boxes)]
 
         # find the max number of boxes
-        max_boxes = 0
+        max_boxes = 1000
         for boxz in boxes:
             if boxz.shape[0] > max_boxes:
                 max_boxes = boxz.shape[0]
@@ -308,7 +309,7 @@ def draw(model_body, class_names, anchors, image_data, image_set='val',
     yolo_outputs = yolo_head(model_body.output, anchors, len(class_names))
     input_image_shape = K.placeholder(shape=(2, ))
     boxes, scores, classes = yolo_eval(
-        yolo_outputs, input_image_shape, score_threshold=0.07, iou_threshold=0)
+        yolo_outputs, input_image_shape, score_threshold=0.07, iou_threshold=0.)
 
     # Run prediction on overfit image.
     sess = K.get_session()  # TODO: Remove dependence on Tensorflow session.
